@@ -34,7 +34,6 @@ module StandaloneMigrations
 
       end
 
-
       it "add a load line in the Rakefile after create a subdir specific task file" do
         pending " echo 'load tasks/*' >> Rakefile"
 
