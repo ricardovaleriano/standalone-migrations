@@ -45,12 +45,12 @@ module StandaloneMigrations
         create_directories
       end
 
-      it "found 4 subdirs" do
+      it "should found 4 subdirs" do
         dirs = discoverer.dirs_with_config_file
         dirs.size.should == 4
       end
 
-      it "found only dirs with configuration" do
+      it "should found only dirs with configuration" do
         dirs = discoverer.dirs_with_config_file
         (1..4).each do |config_num|
           dir = "#{prefix}#{config_num}"
