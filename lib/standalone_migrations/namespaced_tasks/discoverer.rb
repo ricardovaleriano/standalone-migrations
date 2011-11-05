@@ -1,4 +1,5 @@
 module StandaloneMigrations
+
   module NamespacedTasks
 
     class Discoverer

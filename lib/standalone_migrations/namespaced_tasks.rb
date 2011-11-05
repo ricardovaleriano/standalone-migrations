@@ -1,1 +1,2 @@
 require 'standalone_migrations/namespaced_tasks/discoverer'
+require 'standalone_migrations/namespaced_tasks/task_generator'
