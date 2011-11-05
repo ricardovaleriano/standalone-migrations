@@ -1,0 +1,1 @@
+require 'standalone_migrations/namespaced_tasks/discoverer'
