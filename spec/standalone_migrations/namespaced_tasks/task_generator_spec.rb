@@ -30,7 +30,7 @@ module StandaloneMigrations
 
         it "create an [namespace]_tasks.rb for each subproject" do
           generator.generate_for_all_found_subprojects
-          expected_files = Discoverer.new.dirs_with_config_file.map do |config|
+          expected_files = Discoverer.new.subdirs_config_file.map do |config|
             subproject_dir = File.expand_path("../", config)
             "tasks/" << Pathname.new(subproject_dir).basename.to_s << "_tasks.rb"
           end

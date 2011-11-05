@@ -20,7 +20,7 @@ module StandaloneMigrations
       end
 
       def subprojects_dirs
-        Discoverer.new.dirs_with_config_file.map do |config_path|
+        Discoverer.new.subdirs_config_file.map do |config_path|
           File.expand_path("../", config_path)
         end
       end
