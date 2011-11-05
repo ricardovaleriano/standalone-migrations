@@ -1,45 +1,18 @@
+require_relative 'helper'
+
 module StandaloneMigrations
 
   module NamespacedTasks
 
     describe TaskGenerator, "generate tasks for each subdir with a .standalone_migrations file" do
-      def config_yaml
-        "im:emptpy_for_now"
-      end
-
-      def create_config(dir)
-        File.open(File.join(dir, ".standalone_migrations"), "w") do |config|
-          config << config_yaml
-        end
-      end
-
-      def create_directories(total=6, with_config=4)
-        (1..total).each do |dir_num|
-          dir_name = "#{prefix}#{dir_num.to_s}"
-          FileUtils.mkdir_p(dir_name)
-          if dir_num <= with_config
-            create_config(dir_name)
-          end
-        end
-      end
-
-      let(:prefix) do
-        "omg_my_awesome_dir"
-      end
-
-      let(:temp_dir) do
-        File.join(File.expand_path("../", __FILE__), "tmp")
-      end
+      include Helper
 
       let(:generator) do
         TaskGenerator.new
       end
 
       before(:all) do
-        @original_dir = Dir.pwd
-        FileUtils.mkdir_p(temp_dir) unless File.directory?(temp_dir)
-        Dir.chdir(temp_dir)
-        create_directories
+        prepare_subprojects
       end
 
       context "tasks/[namespace]_tasks.rb" do
@@ -70,8 +43,7 @@ module StandaloneMigrations
       end
 
       after(:all) do
-        FileUtils.rm_rf(temp_dir)
-        Dir.chdir(@original_dir)
+        destroy_subprojects
       end
 
     end
