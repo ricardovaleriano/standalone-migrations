@@ -6,20 +6,33 @@ module StandaloneMigrations
 
       def generate_for_all_found_subprojects
         create_tasks_dir
-        configurators = subprojects_configurators
-        p configurators
+        generate_task_file_for_dirs(subprojects_dirs)
       end
 
       private
 
-      def create_tasks_dir
-        FileUtils.mkdir_p "tasks" unless File.directory? "tasks"
+      def tasks_dir_path
+        @tasks_dir_path ||= "tasks"
       end
 
-      def subprojects_configurators
-        subprojects_configuration = Discoverer.new.dirs_with_config_file
-        subprojects_configuration.map do |config_path|
-          "um configurator para cada arquivo de configuracao existente #{config_path}"
+      def create_tasks_dir
+        FileUtils.mkdir_p tasks_dir_path unless File.directory? tasks_dir_path
+      end
+
+      def subprojects_dirs
+        Discoverer.new.dirs_with_config_file.map do |config_path|
+          File.expand_path("../", config_path)
+        end
+      end
+
+      def generate_task_file_for_dirs(dirs)
+        dirs.each do |dir|
+          # saber o dir aqui é importante para colocar essa config
+          # no arquivo da task mais prá frente...
+          # (como saber de onde veio a config...)
+          file_name = Pathname.new(dir).basename.to_s + "_tasks.rb"
+          file_path = File.join(tasks_dir_path, file_name)
+          FileUtils.touch(file_path) unless File.exists? file_path
         end
       end
 
