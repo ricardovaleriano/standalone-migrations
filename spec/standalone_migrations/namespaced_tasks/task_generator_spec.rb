@@ -23,6 +23,11 @@ module StandaloneMigrations
           File.directory?("tasks").should be_true
         end
 
+        it "create a task file to each subproject" do
+          generator.generate_for_all_found_subprojects
+          Dir.glob("tasks/*_tasks.rb").size.should == 4
+        end
+
         it "create an [namespace]_tasks.rb for each subproject" do
           generator.generate_for_all_found_subprojects
           p Dir.glob("tasks/*_tasks.rb")
