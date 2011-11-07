@@ -81,11 +81,11 @@ module StandaloneMigrations
           puts """uma boa ideia pra botar namespace so nas que interessam
           eh carregar na memoria somente as migrations do standalone e ai 
           namespacear todas elas =)"""
-          p Rake.application.tasks
-          only_db = Rake.application.tasks.select do |task|
-            task.name.index "db:"
-          end
-          p only_db
+          only_db = Rake.application.tasks.select { |task| task.name.index "db:" }
+          puts """pega todos os diretorios com config, namespacifica o nome e
+          adiciona aqui nesse teste"""
+          namespaced = only_db.map { |task| "db:[namespace]:#{task.name[3, task.name.length]}" }
+          p namespaced
           pending " echo 'load tasks/*' >> Rakefile"
 
           # quando rodar uma task dentro de um namespace tem que carregar o config
