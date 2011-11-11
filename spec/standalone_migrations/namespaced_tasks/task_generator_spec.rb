@@ -87,12 +87,14 @@ module StandaloneMigrations
           Discoverer.new.subdirs_config_file.each do |config|
             subproject_dir = File.expand_path("../", config)
             dir_name = Pathname.new(subproject_dir).basename.to_s
-            namespaced << only_db.map do |task|
+            only_db_namespaced = only_db.map do |task|
               "db:#{dir_name}:#{task.name[3, task.name.length]}"
             end
+            namespaced.concat(only_db_namespaced)
           end
 
-          p namespaced
+          p Dir.glob("tasks/*_tasks.rb")
+
           pending " echo 'load tasks/*' >> Rakefile"
 
           # quando rodar uma task dentro de um namespace tem que carregar o config
