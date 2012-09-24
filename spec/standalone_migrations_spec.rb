@@ -94,13 +94,6 @@ test:
     run("rake db:create").should =~ warning
   end
 
-  describe 'db:create and drop' do
-    it "should create the database and drop the database that was created" do
-      run "rake db:create"
-      run "rake db:drop"
-    end
-  end
-
   describe 'db:new_migration' do
     it "fails if i do not add a name" do
       lambda{ run("rake db:new_migration") }.should raise_error(/name=/)
