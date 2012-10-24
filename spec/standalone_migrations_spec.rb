@@ -165,7 +165,6 @@ test:
   describe 'db:migrate:down' do
     it "migrates down" do
       make_migration('xxx')
-      sleep 1
       version = make_migration('yyy')
       run 'rake db:migrate'
 
@@ -184,7 +183,6 @@ test:
     it "migrates up" do
       make_migration('xxx')
       run 'rake db:migrate'
-      sleep 1
       version = make_migration('yyy')
       result = run("rake db:migrate:up VERSION=#{version}")
       result.should_not =~ /UP-xxx/
