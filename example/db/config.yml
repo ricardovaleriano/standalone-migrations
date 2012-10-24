@@ -13,3 +13,12 @@ production:
   database: db/production.sqlite3
   pool: 5
   timeout: 5000
+example:
+  host: localhost
+  adapter: mysql2
+  encoding: utf8
+  reconnect: false
+  database: standalone_migrations_go
+  pool: 5
+  username: root
+  password:
