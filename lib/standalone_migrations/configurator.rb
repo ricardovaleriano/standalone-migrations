@@ -2,22 +2,8 @@ require 'active_support/all'
 
 module StandaloneMigrations
 
-  class InternalConfigurationsProxy
-
-    def initialize(configurations)
-      @configurations = configurations
-    end
-
-    def on(config_key)
-      if @configurations[config_key] && block_given?
-        @configurations[config_key] = yield(@configurations[config_key]) || @configurations[config_key]
-      end
-      @configurations[config_key]
-    end
-
-  end
-
   class Configurator
+
     def self.load_configurations
       @standalone_configs ||= Configurator.new.config
       if !@environments_config
@@ -85,4 +71,19 @@ module StandaloneMigrations
     end
 
   end
+
+  class InternalConfigurationsProxy
+
+    def initialize(configurations)
+      @configurations = configurations
+    end
+
+    def on(config_key)
+      if @configurations[config_key] && block_given?
+        @configurations[config_key] = yield(@configurations[config_key]) || @configurations[config_key]
+      end
+      @configurations[config_key]
+    end
+
+  end #InternalConfigurationsProxy
 end
