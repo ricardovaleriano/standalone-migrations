@@ -20,7 +20,11 @@ module StandaloneMigrations
   class Configurator
     def self.load_configurations
       @standalone_configs ||= Configurator.new.config
-      @environments_config ||= YAML.load(ERB.new(File.read(@standalone_configs)).result).with_indifferent_access
+      if !@environments_config
+        erbfied = ERB.new(File.read(@standalone_configs)).result
+        @environments_config = YAML.load(erbfied).with_indifferent_access
+      end
+      @environments_config
     end
 
     def self.environments_config
@@ -71,7 +75,7 @@ module StandaloneMigrations
 
     def load_from_file(defaults)
       return nil unless File.exists? configuration_file
-      config = YAML.load( IO.read(configuration_file) ) 
+      config = YAML.load(IO.read(configuration_file))
       {
         :config       => config["config"] ? config["config"]["database"] : defaults[:config],
         :migrate_dir  => config["db"] ? config["db"]["migrate"] : defaults[:migrate_dir],
