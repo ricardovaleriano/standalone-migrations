@@ -3,3 +3,4 @@ Gemfile
 .bundle/
 bin/
 Gemfile.lock
+*.swp
