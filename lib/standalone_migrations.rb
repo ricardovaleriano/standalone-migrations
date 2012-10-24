@@ -7,13 +7,11 @@ require "active_record"
 
 require "standalone_migrations/configurator"
 require "standalone_migrations/generator"
+require "standalone_migrations/setup"
 
-railtie_app_path = "#{lib_path}/standalone_migrations/minimal_railtie_config"
-APP_PATH = File.expand_path(railtie_app_path,  __FILE__)
-
-if !ENV["RAILS_ENV"]
-  ENV["RAILS_ENV"] = ENV["DB"] || ENV["RACK_ENV"] || Rails.env || "development"
-end
+setup = StandaloneMigrations::Setup.new
+setup.environment
+APP_PATH = setup.railtie_app_path
 
 require "standalone_migrations/minimal_railtie_config"
 require "standalone_migrations/tasks"
