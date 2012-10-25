@@ -10,4 +10,10 @@ class StandaloneMigrations::Setup
     lib_path = File.expand_path "../..", __FILE__
     @railtie_app_path ||= File.join lib_path, path
   end
+
+  def paths
+    if StandaloneMigrations.alternative_root_db_path
+      Rails.application.paths["db/migrate"] = [StandaloneMigrations.alternative_root_db_path]
+    end
+  end
 end
