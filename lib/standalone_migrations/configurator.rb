@@ -19,14 +19,23 @@ module StandaloneMigrations
     end
 
     def initialize(options = {})
+      path = root_db_path
       defaults = {
-        :config       => "db/config.yml",
-        :migrate_dir  => "db/migrate",
-        :seeds        => "db/seeds.rb",
-        :schema       => "db/schema.rb"
+        :config       => File.join(path, "config.yml"),
+        :migrate_dir  => File.join(path, "migrate"),
+        :seeds        => File.join(path, "seeds.rb"),
+        :schema       => File.join(path, "schema.rb")
       }
       @options = load_from_file(defaults.dup) || defaults.merge(options)
       ENV['SCHEMA'] = schema
+    end
+
+    def root_db_path
+      path = "db"
+      if StandaloneMigrations.alternative_root_db_path
+        path = File.join(StandaloneMigrations.alternative_root_db_path, "db")
+      end
+      path
     end
 
     def config
@@ -56,11 +65,14 @@ module StandaloneMigrations
     private
 
     def configuration_file
-      ".standalone_migrations"
+      default_file_name = ".standalone_migrations"
+      alternative_path = StandaloneMigrations.alternative_root_db_path
+      file = alternative_path ? File.join(alternative_path, default_file_name) : default_file_name
+      file
     end
 
     def load_from_file(defaults)
-      return nil unless File.exists? configuration_file
+      return unless File.exists?(configuration_file)
       config = YAML.load(IO.read(configuration_file))
       {
         :config       => config["config"] ? config["config"]["database"] : defaults[:config],
