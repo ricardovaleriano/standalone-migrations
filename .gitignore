@@ -1,5 +1,8 @@
 .bundle
 .idea
+.DS_Store
 schema.rb
 spec/tmp
 pkg
+example/db/migrate/*
+example/db/databases/*/db/migrate/*

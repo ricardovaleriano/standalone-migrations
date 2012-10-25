@@ -1,2 +1,15 @@
+$: << File.expand_path("../../lib", __FILE__)
+
 require "standalone_migrations"
 StandaloneMigrations::Tasks.load_tasks
+
+desc "install the standalone_migrations gem (from source)"
+task :install do
+  system("rm Gemfile.lock")
+  system("bundle")
+end
+
+desc "rake -T after install all dependencies"
+task :list => :install do
+  system("rake -T")
+end
