@@ -116,7 +116,7 @@ test:
       run("rake db:new_migration name=test_abc_env").should =~ %r{create(.*)db/migrate/\d+_test_abc_env\.rb}
       run("ls db/migrate").should =~ /^\d+_test_abc_env.rb$/
     end
-    
+
     it "generates a new migration with this name from args and timestamp" do
       run("rake db:new_migration[test_abc_args]").should =~ %r{create(.*)db/migrate/\d+_test_abc_args\.rb}
       run("ls db/migrate").should =~ /^\d+_test_abc_args.rb$/
