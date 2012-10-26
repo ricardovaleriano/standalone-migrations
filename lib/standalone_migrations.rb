@@ -17,15 +17,7 @@ module StandaloneMigrations
   StandaloneMigrations.alternative_root_db_path = db_path
 end
 
+require "standalone_migrations/setup"
 require "standalone_migrations/configurator"
 require "standalone_migrations/generator"
-require "standalone_migrations/setup"
-
-setup = StandaloneMigrations::Setup.new
-setup.environment
-
-APP_PATH = setup.railtie_app_path
-require "standalone_migrations/minimal_railtie_config"
-
-setup.paths
 require "standalone_migrations/tasks"
