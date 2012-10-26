@@ -1,5 +1,3 @@
-$: << File.expand_path("../../lib", __FILE__)
-
 require "standalone_migrations"
 StandaloneMigrations::Tasks.load_tasks
 
@@ -11,5 +9,6 @@ end
 
 desc "rake -T after install all dependencies"
 task :list => :install do
+  load File.expand_path("../../lib/standalone_migrations.rb", __FILE__)
   system("rake -T")
 end
