@@ -13,8 +13,6 @@ module StandaloneMigrations
   # standalone_migrations.
   # Ricardo Valeriano
   mattr_accessor :alternative_root_db_path
-  db_path = ENV["db_path"] || ENV["DB_PATH"]
-  StandaloneMigrations.alternative_root_db_path = db_path
 end
 
 require "standalone_migrations/setup"

@@ -19,8 +19,10 @@ module StandaloneMigrations
       end
 
       def load_tasks
+
         setup = StandaloneMigrations::Setup.new
         setup.configure_railtie
+
         configure_database_paths
         MinimalRailtieConfig.load_tasks
         load_standalone_migration_tasks
