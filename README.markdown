@@ -64,6 +64,27 @@ def down
 end
 ```
 
+### Multiple database support
+Create a new directory inside you current `db/` directory. Inside it, create the
+configuration you need to this 'sub project'. Take a look at this example of dir
+structure:
+
+    my_project
+    \_db
+      \_some_database
+      | \_db
+      |   \_config.yml
+      |_config.yml
+
+Given the above structure, you could use the `db_path` or `DB_PATH` environment
+variable to let `standalone_migrations` know in what database some task should
+run.
+If you run `db_path=db/some_database rake db:create`, then the databases defined
+on `db/some_database/db/config.yml` will be created.
+
+There is a `example` dir in this repository, please take a look at it to see a
+more concrete example.
+
 ### To apply your newest migration:
 
     rake db:migrate
