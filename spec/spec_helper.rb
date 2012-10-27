@@ -20,7 +20,7 @@ def write(file, content)
   raise "cannot write nil" unless file
   file = tmp_file(file)
   folder = File.dirname(file)
-  `mkdir -p #{folder}` unless File.exist?(folder)
+  FileUtils.mkdir_p folder unless File.exist?(folder)
   File.open(file, 'w') { |f| f.write content }
 end
 
