@@ -1,23 +1,17 @@
 class StandaloneMigrations::Setup
+  def configure_railtie
+    environment
+    require railtie_app_path
+    paths
+  end
+
+  private
   def railtie_app_path
     path = "standalone_migrations/minimal_railtie_config"
     lib_path = File.expand_path "../..", __FILE__
     @railtie_app_path ||= File.join lib_path, path
   end
 
-  def configure_railtie
-    environment
-    require "standalone_migrations/minimal_railtie_config"
-    paths
-  end
-
-  def restore_originals
-    if Rails.application && Rails.application.paths["db/migrate"] && @db_migrate_path
-      Rails.application.paths["db/migrate"] = @db_migrate_path
-    end
-  end
-
-  private
   def environment
     if environment = ENV["DB"] || ENV["RACK_ENV"]
       ENV["RAILS_ENV"] = environment
