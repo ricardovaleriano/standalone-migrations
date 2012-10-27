@@ -204,5 +204,13 @@ module StandaloneMigrations
       end
 
     end
+
+    context "with alternative configuration file" do
+      it "load config from file on ENV['db_path']/db dir"
+      describe "sqlite database: append an absolute path when..." do
+        it "a non absolute path was given"
+        it "a non 'in memory' database is configured"
+      end
+    end
   end
 end
