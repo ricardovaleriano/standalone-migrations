@@ -1,4 +1,3 @@
-
 describe 'Standalone migrations' do
   before do
     prepare_tmp_project_dir
