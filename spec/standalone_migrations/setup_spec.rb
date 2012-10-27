@@ -15,8 +15,6 @@ describe StandaloneMigrations::Setup do
       db_migrate_path = Rails.application.paths["db/migrate"].first
       db_migrate_path.should include alternative_path
     end
-
-    after { subject.restore_originals }
   end
 
   after do
