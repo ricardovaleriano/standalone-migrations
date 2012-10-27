@@ -1,7 +1,7 @@
 describe StandaloneMigrations::Setup do
   let(:alternative_path) { "omgLoL" }
   before do
-    StandaloneMigrations.alternative_root_db_path = alternative_path
+    ENV['db_path'] = alternative_path
   end
 
   describe "#configure_railtie" do
@@ -12,8 +12,8 @@ describe StandaloneMigrations::Setup do
     end
 
     it "add an alternative_path to db/migrate" do
-      db_migrate_path = Rails.application.paths["db/migrate"][0]
-      db_migrate_path.should == alternative_path
+      db_migrate_path = Rails.application.paths["db/migrate"].first
+      db_migrate_path.should include alternative_path
     end
 
     after { subject.restore_originals }
@@ -21,5 +21,6 @@ describe StandaloneMigrations::Setup do
 
   after do
     StandaloneMigrations.alternative_root_db_path = nil
+    ENV['db_path'] = nil
   end
 end
