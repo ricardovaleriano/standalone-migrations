@@ -4,8 +4,8 @@ module StandaloneMigrations
 
   class Configurator
 
-    def self.load_configurations
-      @standalone_configs ||= Configurator.new.config
+    def self.load_configurations(configurator = nil)
+      @standalone_configs ||= configurator ? configurator.config : Configurator.new.config
       if !@environments_config
         erbfied = ERB.new(File.read(@standalone_configs)).result
         @environments_config = YAML.load(erbfied).with_indifferent_access
@@ -28,6 +28,13 @@ module StandaloneMigrations
       }
       @options = load_from_file(defaults.dup) || defaults.merge(options)
       ENV['SCHEMA'] = schema
+    end
+
+    def configure
+      railtie = @options.delete(:railtie)
+      setup = StandaloneMigrations::Setup.new railtie
+      @railtie = setup.configure_railtie
+      configure_paths
     end
 
     def root_db_path
@@ -55,7 +62,7 @@ module StandaloneMigrations
     end
 
     def config_for_all
-      Configurator.load_configurations.dup
+      Configurator.load_configurations(self).dup
     end
 
     def config_for(environment)
@@ -63,7 +70,6 @@ module StandaloneMigrations
     end
 
     private
-
     def configuration_file
       default_file_name = ".standalone_migrations"
       alternative_path = StandaloneMigrations.alternative_root_db_path
@@ -80,6 +86,10 @@ module StandaloneMigrations
         :seeds        => config["db"] ? config["db"]["seeds"] : defaults[:seeds],
         :schema       => config["db"] ? config["db"]["schema"] : defaults[:schema]
       }
+    end
+
+    def configure_paths
+      @railtie.config.paths.add "config/database", :with => config
     end
 
   end

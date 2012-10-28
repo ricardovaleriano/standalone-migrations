@@ -1,13 +1,6 @@
 module StandaloneMigrations
   class Tasks
     class << self
-      def configure_database_paths
-        Deprecations.new.call
-        config_database_file = Configurator.new.config
-        paths = Rails.application.config.paths
-        paths.add "config/database", :with => config_database_file
-      end
-
       def load_standalone_migration_tasks
         %w(
           connection
@@ -19,13 +12,14 @@ module StandaloneMigrations
       end
 
       def load_tasks
+        Deprecations.new.call
 
-        setup = StandaloneMigrations::Setup.new
-        setup.configure_railtie
+        configurator = Configurator.new
+        configurator.configure
 
-        configure_database_paths
         MinimalRailtieConfig.load_tasks
         load_standalone_migration_tasks
+
         load "active_record/railties/databases.rake"
       end
     end

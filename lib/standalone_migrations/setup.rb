@@ -1,8 +1,13 @@
 class StandaloneMigrations::Setup
+  def initialize(railtie=nil)
+    @railtie = railtie
+  end
+
   def configure_railtie
     environment
-    require railtie_app_path
+    require railtie_app_path unless @railtie
     paths
+    @railtie || Rails.application
   end
 
   private
