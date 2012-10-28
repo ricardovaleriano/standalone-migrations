@@ -8,12 +8,25 @@ module StandaloneMigrations
   describe Configurator, "which allows define custom dirs and files to work with your migrations" do
 
     describe "environment yaml configuration loading" do
+      let(:multi_db_env) { "multiple_db_environment" }
 
       let(:env_hash) do
         {
-          "development" => { "adapter" => "sqlite3", "database" => "db/development.sql" },
-          "test" => { "adapter" => "sqlite3", "database" => "db/test.sql" },
-          "production" => {"adapter" => "sqlite3", "database" => ":memory:" }
+          "development" => {
+            "adapter" => "sqlite3",
+            "database" => "db/development.sqlite"},
+
+          "test" => {
+            "adapter" => "sqlite3",
+            "database" => "db/test.sqlite"},
+
+          "production" => {
+            "adapter" => "sqlite3",
+            "database" => ":memory:"},
+
+          multi_db_env => {
+            "adapter" => "sqlite3",
+            "database" => "db/mult_db_env.sqlite"},
         }
       end
 
@@ -34,7 +47,7 @@ module StandaloneMigrations
 
       it "load the yaml with environment configurations" do
         config = Configurator.new.config_for(:development)
-        config[:database].should == "db/development.sql"
+        config[:database].should == env_hash["development"]["database"]
       end
 
       it "allow access the original configuration hash (for all environments)" do
@@ -72,36 +85,40 @@ module StandaloneMigrations
 
       end
 
-      context "with alternative configuration file" do
+      context "With StandaloneMigrations::alternative_root_db_path set" do
         let(:alternative_root) { "db/some" }
         let(:alternative_path) { "#{alternative_root}/alternative/path" }
         let(:alternative_db) { "#{alternative_path}/db" }
-        let(:config) {
-          {"development" => {
-             "adapter" => "sqlite3",
-             "database" => "db/alternative_development.sqlite"}
-          }
-        }
         let(:railtie) { Class.new(Rails.application.class) }
+        let(:configurator) { Configurator.new railtie: railtie }
+        let(:non_in_memory) { env_hash[multi_db_env] }
+        let(:absolute_path) { File.join Dir.pwd, alternative_path }
+        let(:database_path) { File.join absolute_path, non_in_memory["database"] }
 
         before(:all) do
           FileUtils.mkdir_p alternative_db unless
               File.exist?(alternative_db)
           File.open("#{alternative_db}/config.yml", 'w') do |f|
-            f.write config.to_yaml
+            f.write env_hash.to_yaml
           end
           StandaloneMigrations.alternative_root_db_path = alternative_path
         end
 
-        it "load config from file on ENV['db_path']/db dir" do
-          configurator = Configurator.new(railtie: railtie).config_for(:development)
-          configurator[:database].should == config["development"]["database"]
+        it "should load config from file from the correct path" do
+          config = configurator.config_for(:development)
+          config[:database].should include env_hash["development"]["database"]
         end
 
-        describe "sqlite database: append an absolute path when..." do
-          it "a non absolute path was given"
-          it "a non 'in memory' database is configured"
-        end
+        context "When using sqlite database" do
+          describe "append an absolute path if" do
+            context "a non 'in memory' database is configured and..." do
+              it "a non absolute path was given" do
+                config = configurator.config_for(multi_db_env)
+                config[:database].should == database_path
+              end
+            end
+          end
+        end# sqlite database
 
         after(:all) do
           StandaloneMigrations.alternative_root_db_path = nil

@@ -58,10 +58,8 @@ module StandaloneMigrations
     end
 
     def config_for(environment)
-      if @config_for[environment]
-        return @config_for[environment]
-      end
-      config_for_all[environment]
+      config = @config_for[environment] ? @config_for[environment] : config_for_all[environment]
+      normalized_configuration_for config
     end
 
     def on(environment)
@@ -74,6 +72,17 @@ module StandaloneMigrations
     end
 
     private
+    def normalized_configuration_for(config)
+      is_non_memory_sqlite = config[:adapter] =~ /sqlite/ && config[:database] != ":memory:"
+      need_absolute_path = is_non_memory_sqlite && StandaloneMigrations.alternative_root_db_path
+      new_config = config.dup
+      if need_absolute_path
+        path = File.join Dir.pwd, StandaloneMigrations.alternative_root_db_path
+        new_config[:database] = File.join path, config[:database]
+      end
+      new_config
+    end
+
     def configuration_file
       default_file_name = ".standalone_migrations"
       alternative_path = StandaloneMigrations.alternative_root_db_path
@@ -94,6 +103,17 @@ module StandaloneMigrations
 
     def configure_paths
       @railtie.config.paths.add "config/database", :with => config
+    end
+
+    def paths
+      StandaloneMigrations.alternative_root_db_path = ENV["db_path"] || ENV["DB_PATH"]
+
+      if StandaloneMigrations.alternative_root_db_path
+        @db_migrate_path = Rails.application.paths["db/migrate"]
+        Rails.application.paths["db/migrate"] = [StandaloneMigrations.alternative_root_db_path]
+      end
+
+      Rails.application.paths["db/migrate"]
     end
 
   end
