@@ -46,20 +46,15 @@ module StandaloneMigrations
         let(:configurator) { Configurator.new }
         let(:new_config) { { 'sbrobous' => 'test' } }
 
-        before(:all) do
-          Configurator.environments_config do |env|
-            env.on "production" do
-              new_config
-            end
-          end
-        end
-
         it "allow changes on the configuration hashes" do
+          configurator.environments_config do |env|
+            env.on("production") { new_config }
+          end
           configurator.config_for("production").should == new_config
         end
 
         it "return current configuration if block yielding returns nil" do
-          Configurator.environments_config do |env|
+          configurator.environments_config do |env|
             env.on "production" do
               nil
             end
@@ -68,7 +63,7 @@ module StandaloneMigrations
         end
 
         it "pass the current configuration as block argument" do
-          Configurator.environments_config do |env|
+          configurator.environments_config do |env|
             env.on "production" do |current_config|
               current_config.should == new_config
             end
@@ -87,6 +82,7 @@ module StandaloneMigrations
              "database" => "db/alternative_development.sqlite"}
           }
         }
+        let(:railtie) { Class.new(Rails.application.class) }
 
         before(:all) do
           FileUtils.mkdir_p alternative_db unless
@@ -94,13 +90,12 @@ module StandaloneMigrations
           File.open("#{alternative_db}/config.yml", 'w') do |f|
             f.write config.to_yaml
           end
+          StandaloneMigrations.alternative_root_db_path = alternative_path
         end
 
         it "load config from file on ENV['db_path']/db dir" do
-          StandaloneMigrations.alternative_root_db_path = alternative_path
-          configurator = Configurator.new.config_for(:development)
-          configurator[:database].should ==
-            config["development"]["database"]
+          configurator = Configurator.new(railtie: railtie).config_for(:development)
+          configurator[:database].should == config["development"]["database"]
         end
 
         describe "sqlite database: append an absolute path when..." do
@@ -108,11 +103,8 @@ module StandaloneMigrations
           it "a non 'in memory' database is configured"
         end
 
-        after do
-          StandaloneMigrations.alternative_root_db_path = nil
-        end
-
         after(:all) do
+          StandaloneMigrations.alternative_root_db_path = nil
           FileUtils.rm_rf alternative_db
         end
       end

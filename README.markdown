@@ -140,7 +140,7 @@ method. Check the usage example:
 ```ruby
 require 'tasks/standalone_migrations'
 
-StandaloneMigrations::Configurator.environments_config do |env|
+StandaloneMigrations::Configurator.new.environments_config do |env|
 
   env.on "production" do
 
@@ -177,7 +177,7 @@ in your block, like this:
 ```ruby
 require 'tasks/standalone_migrations'
 
-StandaloneMigrations::Configurator.environments_config do |env|
+StandaloneMigrations::Configurator.new.environments_config do |env|
 
   env.on "my_custom_config" do |current_custom_config|
     p current_custom_config

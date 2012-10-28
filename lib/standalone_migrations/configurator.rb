@@ -3,22 +3,9 @@ require 'active_support/all'
 module StandaloneMigrations
 
   class Configurator
-
-    def self.load_configurations(configurator = nil)
-      @standalone_configs ||= configurator ? configurator.config : Configurator.new.config
-      if !@environments_config
-        erbfied = ERB.new(File.read(@standalone_configs)).result
-        @environments_config = YAML.load(erbfied).with_indifferent_access
-      end
-      @environments_config
-    end
-
-    def self.environments_config
-      proxy = InternalConfigurationsProxy.new(load_configurations)
-      yield(proxy) if block_given?
-    end
-
     def initialize(options = {})
+      @config_for = {}
+
       path = root_db_path
       defaults = {
         :config       => File.join(path, "config.yml"),
@@ -28,6 +15,10 @@ module StandaloneMigrations
       }
       @options = load_from_file(defaults.dup) || defaults.merge(options)
       ENV['SCHEMA'] = schema
+    end
+
+    def environments_config
+      yield(self) if block_given?
     end
 
     def configure
@@ -62,11 +53,24 @@ module StandaloneMigrations
     end
 
     def config_for_all
-      Configurator.load_configurations(self).dup
+      erbfied = ERB.new(File.read(config.dup)).result
+      YAML.load(erbfied).with_indifferent_access
     end
 
     def config_for(environment)
+      if @config_for[environment]
+        return @config_for[environment]
+      end
       config_for_all[environment]
+    end
+
+    def on(environment)
+      if block_given? && current_config = config_for(environment)
+        new_config = yield(current_config) || current_config
+        @config_for[environment] = new_config
+        return @config_for[environment]
+      end
+      config_for(environment)
     end
 
     private
@@ -93,19 +97,4 @@ module StandaloneMigrations
     end
 
   end
-
-  class InternalConfigurationsProxy
-
-    def initialize(configurations)
-      @configurations = configurations
-    end
-
-    def on(config_key)
-      if @configurations[config_key] && block_given?
-        @configurations[config_key] = yield(@configurations[config_key]) || @configurations[config_key]
-      end
-      @configurations[config_key]
-    end
-
-  end #InternalConfigurationsProxy
 end

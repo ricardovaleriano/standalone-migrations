@@ -14,3 +14,5 @@ Features
   - Support to any/path/.standalone_migrations file
 * Build an executable to allow run usefull Rails scripts like dbconsole
   - maybe this executable can provide a project skeleton generator?
+* Use the environemnt variable DATABASE_URL instead of the current Configurator#on
+  method
