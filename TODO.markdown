@@ -16,3 +16,7 @@ Features
   - maybe this executable can provide a project skeleton generator?
 * Use the environemnt variable DATABASE_URL instead of the current Configurator#on
   method
+
+Documentation
+=============
+* Explain the syntax to pass options for the db:new_migration task.
