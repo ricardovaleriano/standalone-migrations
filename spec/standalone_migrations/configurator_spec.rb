@@ -1,5 +1,8 @@
-require 'spec_helper'
 require 'yaml'
+
+def tmp_db_dir
+  "tmp/db"
+end
 
 module StandaloneMigrations
   describe Configurator, "which allows define custom dirs and files to work with your migrations" do
@@ -17,7 +20,7 @@ module StandaloneMigrations
       before(:all) do
         @original_dir = Dir.pwd
         Dir.chdir( File.expand_path("../../", __FILE__) )
-        FileUtils.mkdir_p "tmp/db"
+        FileUtils.mkdir_p tmp_db_dir
         Dir.chdir "tmp"
         File.open("db/config.yml", "w") do |f|
           f.write env_hash.to_yaml
@@ -72,6 +75,46 @@ module StandaloneMigrations
           end
         end
 
+      end
+
+      context "with alternative configuration file" do
+        let(:alternative_root) { "db/some" }
+        let(:alternative_path) { "#{alternative_root}/alternative/path" }
+        let(:alternative_db) { "#{alternative_path}/db" }
+        let(:config) {
+          {"development" => {
+             "adapter" => "sqlite3",
+             "database" => "db/alternative_development.sqlite"}
+          }
+        }
+
+        before(:all) do
+          FileUtils.mkdir_p alternative_db unless
+              File.exist?(alternative_db)
+          File.open("#{alternative_db}/config.yml", 'w') do |f|
+            f.write config.to_yaml
+          end
+        end
+
+        it "load config from file on ENV['db_path']/db dir" do
+          StandaloneMigrations.alternative_root_db_path = alternative_path
+          configurator = Configurator.new.config_for(:development)
+          configurator[:database].should ==
+            config["development"]["database"]
+        end
+
+        describe "sqlite database: append an absolute path when..." do
+          it "a non absolute path was given"
+          it "a non 'in memory' database is configured"
+        end
+
+        after do
+          StandaloneMigrations.alternative_root_db_path = nil
+        end
+
+        after(:all) do
+          FileUtils.rm_rf alternative_db
+        end
       end
 
       after(:all) do
@@ -203,14 +246,6 @@ module StandaloneMigrations
         Dir.chdir @original_dir
       end
 
-    end
-
-    context "with alternative configuration file" do
-      it "load config from file on ENV['db_path']/db dir"
-      describe "sqlite database: append an absolute path when..." do
-        it "a non absolute path was given"
-        it "a non 'in memory' database is configured"
-      end
     end
   end
 end
