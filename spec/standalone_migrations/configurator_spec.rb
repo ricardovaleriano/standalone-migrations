@@ -9,6 +9,7 @@ module StandaloneMigrations
 
     describe "environment yaml configuration loading" do
       let(:multi_db_env) { "multiple_db_environment" }
+      let(:multi_db_env_abs) { "multiple_db_environment_abs" }
 
       let(:env_hash) do
         {
@@ -27,6 +28,10 @@ module StandaloneMigrations
           multi_db_env => {
             "adapter" => "sqlite3",
             "database" => "db/mult_db_env.sqlite"},
+
+          multi_db_env_abs => {
+            "adapter" => "sqlite3",
+            "database" => "/db/mult_db_env.sqlite"},
         }
       end
 
@@ -115,6 +120,11 @@ module StandaloneMigrations
               it "a non absolute path was given" do
                 config = configurator.config_for(multi_db_env)
                 config[:database].should == database_path
+              end
+
+              it "only if a non absolute path was given" do
+                config = configurator.config_for(multi_db_env_abs)
+                config[:database].should == env_hash[multi_db_env_abs]["database"]
               end
             end
           end

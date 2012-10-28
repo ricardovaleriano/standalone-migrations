@@ -1,4 +1,5 @@
 require 'active_support/all'
+require 'pathname'
 
 module StandaloneMigrations
 
@@ -74,7 +75,9 @@ module StandaloneMigrations
     private
     def normalized_configuration_for(config)
       is_non_memory_sqlite = config[:adapter] =~ /sqlite/ && config[:database] != ":memory:"
-      need_absolute_path = is_non_memory_sqlite && StandaloneMigrations.alternative_root_db_path
+      need_absolute_path = is_non_memory_sqlite &&
+        !Pathname.new(config[:database]).absolute? &&
+        StandaloneMigrations.alternative_root_db_path
       new_config = config.dup
       if need_absolute_path
         path = File.join Dir.pwd, StandaloneMigrations.alternative_root_db_path
