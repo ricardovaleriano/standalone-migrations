@@ -6,16 +6,11 @@ module StandaloneMigrations
   class Configurator
     def initialize(options = {})
       @config_for = {}
-
-      path = root_db_path
-      defaults = {
-        :config       => File.join(path, "config.yml"),
-        :migrate_dir  => File.join(path, "migrate"),
-        :seeds        => File.join(path, "seeds.rb"),
-        :schema       => File.join(path, "schema.rb")
-      }
       @options = load_from_file(defaults.dup) || defaults.merge(options)
-      ENV['SCHEMA'] = schema
+
+      # I think we don't need this env var, but i don't know for sure
+      # ricardo valeriano
+      ENV['SCHEMA'] = @options["schema"]
     end
 
     def environments_config
@@ -73,13 +68,26 @@ module StandaloneMigrations
     end
 
     private
-    def normalized_configuration_for(config)
+    def defaults
+      {
+        :config       => File.join(root_db_path, "config.yml"),
+        :migrate_dir  => File.join(root_db_path, "migrate"),
+        :seeds        => File.join(root_db_path, "seeds.rb"),
+        :schema       => File.join(root_db_path, "schema.rb")
+      }
+    end
+
+    def is_sqlite_and_need_absolute_path_for(config)
       is_non_memory_sqlite = config[:adapter] =~ /sqlite/ && config[:database] != ":memory:"
       need_absolute_path = is_non_memory_sqlite &&
         !Pathname.new(config[:database]).absolute? &&
         StandaloneMigrations.alternative_root_db_path
+      need_absolute_path
+    end
+
+    def normalized_configuration_for(config)
       new_config = config.dup
-      if need_absolute_path
+      if is_sqlite_and_need_absolute_path_for(config)
         path = File.join Dir.pwd, StandaloneMigrations.alternative_root_db_path
         new_config[:database] = File.join path, config[:database]
       end
@@ -96,6 +104,7 @@ module StandaloneMigrations
     def load_from_file(defaults)
       return unless File.exists?(configuration_file)
       config = YAML.load(IO.read(configuration_file))
+
       {
         :config       => config["config"] ? config["config"]["database"] : defaults[:config],
         :migrate_dir  => config["db"] ? config["db"]["migrate"] : defaults[:migrate_dir],
