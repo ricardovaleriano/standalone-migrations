@@ -20,7 +20,7 @@ def write(file, content)
   raise "cannot write nil" unless file
   file = tmp_file(file)
   folder = File.dirname(file)
-  FileUtils.mkdir_p folder unless File.exist?(folder)
+  system("mkdir -p #{folder}") unless File.exist?(folder)
   File.open(file, 'w') { |f| f.write content }
 end
 
@@ -36,9 +36,9 @@ end
   TXT
 end
 
-def prepare_tmp_project_dir
-  `rm -rf #{tmp_dir}` if File.exist?('spec/tmp')
-  `mkdir #{tmp_dir}`
+def prepare_tmp_project_dir(dir = tmp_dir)
+  `rm -rf #{dir}` if File.exist?(dir)
+  `mkdir -p #{dir}`
   write_rakefile
   write 'db/config.yml', <<-TXT
 development:
@@ -62,7 +62,7 @@ end
 
 def run(cmd)
   original_dir = Dir.pwd
-  result = `cd spec/tmp && #{cmd} 2>&1`
+  result = `cd #{tmp_dir} && #{cmd} 2>&1`
   Dir.chdir original_dir
   raise result unless $?.success?
   result

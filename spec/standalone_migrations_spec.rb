@@ -16,6 +16,7 @@ describe 'Standalone migrations' do
 
   describe 'db:create and drop' do
     it "should create the database and drop the database that was created" do
+      # TODO: expectations? -- ricardo valeriano
       run "rake db:create"
       run "rake db:drop"
     end
@@ -217,6 +218,29 @@ describe 'Standalone migrations' do
 
     it "should error on an invalid database" do
       lambda{ run("rake db:create DB=nonexistent")}.should raise_error(/rake aborted/)
+    end
+  end
+
+  context "Multiple databases with alternative path" do
+    describe "db:create" do
+      let(:alternative_path) { "my/alternative/path" }
+      let(:custom_path) { File.join tmp_dir, alternative_path }
+      let(:dev_db_file) { File.join custom_path, "db/development.sql" }
+
+      before do
+        prepare_tmp_project_dir custom_path
+        puts system("ls -la spec/tmp/db/")
+      end
+
+      it "create sqlite database file in the right path" do
+        puts system("cat spec/tmp/db/config.yml")
+        puts run "db_path=#{alternative_path} rake db:create"
+        File.exists?(dev_db_file).should be_true
+      end
+    end
+
+    describe "db:migrate" do
+      it "execute migrations from the custom path on the right database"
     end
   end
 end
