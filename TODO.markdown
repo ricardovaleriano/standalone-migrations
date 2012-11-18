@@ -5,6 +5,8 @@ Enhancement
 ===========
  - Better specs organization. We are starting to see unintended dependencies
    between runs.
+ - Use rspec 'tags' instead of separate tasks for slow tests
+ - Use https://github.com/defunkt/fakefs in the file system tests.
 
 Features
 ========
